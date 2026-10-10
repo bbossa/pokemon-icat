@@ -41,7 +41,13 @@ sh install.sh -u 15
 
 ### Arch
 
-If you would like to contribute, an AUR package would be awesome!
+Install [`pokemon-icat`](https://aur.archlinux.org/packages/pokemon-icat) from the AUR, for example with an AUR helper:
+
+```sh
+paru -S pokemon-icat
+```
+
+It pulls [`pokemon-icat-data`](https://aur.archlinux.org/packages/pokemon-icat-data), which installs the CSV and the icons in `/usr/share/pokemon-icat`: no `install.sh` run and no `$POKEMON_ICAT_DATA` needed (when that variable is unset, the binary reads `/usr/share/pokemon-icat`).
 
 ### NixOS
 
@@ -94,15 +100,29 @@ python3 update_names.py
 
 To check all the available options, use the `--help` option.
 
+## Icons and data archive
+
+`build_icons.py` builds the icons from [PokeAPI/sprites](https://github.com/PokeAPI/sprites) at a pinned commit: for every row of `bin/pokemon_data.csv` (row N is national dex number N), the normal and shiny sprites are cropped to their visible pixels and upscaled. It only needs Pillow, and fails if any icon is missing:
+
+```sh
+python3 build_icons.py                    # into $POKEMON_ICAT_DATA/pokemon-icons, upscale x3
+python3 build_icons.py -o icons -u 5      # custom directory and upscale factor
+```
+
+With `--archive`, it also packs a reproducible `pokemon-icat-data-<version>.tar.zst` (same inputs, same bytes) holding `pokemon_data.csv`, `pokemon-icons/` and a `NOTICE` with the sources; this is the archive attached to the `data-v*` releases and used by the `pokemon-icat-data` package:
+
+```sh
+python3 build_icons.py -o build/pokemon-icons --archive dist/pokemon-icat-data-1.0.0.tar.zst
+```
+
 ## Known issues
 
 - Multiple images return an error while downloading because they do not exist
 - Last DLC pokemons don't get downloaded (change the csv when this is fixed)
-- Image `678.png` doesn't get downloaded
+- Image `678.png` doesn't get downloaded by `setup_icons.py` (`build_icons.py` includes it)
 
 ## would-like-to-do list
 
-- AUR package (very requested)
 - Nix package (WIP)
 - rename the other images to include every available sprite
     - do they contain regional forms?
