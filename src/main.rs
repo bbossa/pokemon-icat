@@ -11,6 +11,9 @@ const TYPES: [&str; 18] = [
 ];
 const INVALID_TYPE_STR: &str = "🚫";
 
+// system-wide data (distribution packages), used when $POKEMON_ICAT_DATA is not set
+const DEFAULT_DATA_DIR: &str = "/usr/share/pokemon-icat";
+
 // generation id, then its label in each `Lang` (en, fr, ja)
 const GENERATIONS: [(&str, [&str; 3]); 10] = [
     ("1", ["I Generation", "Génération I", "第1世代"]),
@@ -162,8 +165,9 @@ fn gen_label(gen: &str, lang: Lang) -> &str {
 }
 
 fn main() {
-    let mut root_path =
-        PathBuf::from(env::var("POKEMON_ICAT_DATA").expect("$POKEMON_ICAT_DATA is not set"));
+    let mut root_path = PathBuf::from(
+        env::var("POKEMON_ICAT_DATA").unwrap_or_else(|_| DEFAULT_DATA_DIR.to_string()),
+    );
 
     let args = ProgramArgs::parse();
 
